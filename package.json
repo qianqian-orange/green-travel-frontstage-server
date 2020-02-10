@@ -4,8 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "node index.js",
-    "start": "node index.js"
+    "dev": "cross-env NODE_ENV=development node index.js",
+    "start": "cross-env NODE_ENV=production node index.js"
   },
   "keywords": [],
   "author": "",
@@ -20,5 +20,8 @@
     "mysql": "^2.18.0",
     "redis": "^2.8.0",
     "serve-favicon": "^2.5.0"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.0"
   }
 }

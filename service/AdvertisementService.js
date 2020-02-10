@@ -1,4 +1,4 @@
-const query = require('../init/mysql');
+const { query } = require('../init/mysql');
 const Advertisement = require('../model/Advertisement');
 
 function list() {

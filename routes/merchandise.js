@@ -14,4 +14,8 @@ router.get('/find', (req, res) => {
   merchandiseController.find(req, res);
 });
 
+router.post('/conversion', (req, res) => {
+  merchandiseController.conversion(req, res);
+});
+
 module.exports = router;

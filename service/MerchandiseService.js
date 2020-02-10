@@ -1,5 +1,5 @@
 const mysql = require('mysql');
-const query = require('../init/mysql');
+const { query, transaction } = require('../init/mysql');
 const Merchandise = require('../model/Merchaindise');
 
 function list({ pagination, condition }) {
@@ -29,13 +29,34 @@ function total(condition) {
 function find(id) {
   return query('select * from merchandise where exist = 0 and id = ? limit 1', [id])
     .then((result) => {
-      return new Merchandise(result[0]);
+      if (result[0]) return new Merchandise(result[0]);
+      return Promise.reject('商品已过期！');
     })
     .catch(e => Promise.reject(e));
+}
+
+async function conversion(id, user) {
+  try {
+    const merchandise = await find(id);
+    const integral = (user.integral * 100 - merchandise.integral * 100) / 100;
+    const execute = [
+      ['update user set integral = ? where id = ?', [integral, user.id]],
+    ];
+    let result = await query('select * from user_merchandise where user_id = ? and merchandise_id = ? limit 1', [user.id, id]);
+    if (result.length === 0)
+      execute.push(['insert into user_merchandise(user_id, merchandise_id, quantity) values(?, ?, ?)', [user.id, id, 1]]);
+    else
+      execute.push(['update user_merchandise set quantity = ? where user_id = ? and merchandise_id = ?', [result[0].quantity + 1, user.id, id]]);
+    await transaction(execute);
+    user.integral = integral;
+  } catch(e) {
+    return Promise.reject(e);
+  }
 }
 
 module.exports = {
   list,
   total,
   find,
+  conversion,
 };

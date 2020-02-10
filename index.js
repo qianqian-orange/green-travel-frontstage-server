@@ -9,8 +9,15 @@ const client = require('./init/redis');
 require('./init/mysql');
 const merchandiseRouter = require('./routes/merchandise');
 const advertisementRouter = require('./routes/advertisement');
+const authRouter = require('./routes/auth');
+const userRouter = require('./routes/user');
 
 const app = express();
+
+/* favicon */
+app.use(favicon(path.join(__dirname, './public/favicon.ico')));
+/* static */
+app.use('/static/', express.static(path.join(__dirname, './public/static')));
 
 /* application/x-www-form-urlencoded */
 app.use(express.urlencoded({ extended: false }));
@@ -19,17 +26,15 @@ app.use(express.json());
 
 /* session */
 app.use(session({
+  cookie: {
+    sameSite: true, // will set the SameSite attribute to Strict for strict same site enforcement
+    // secure: 如果设置为true,那么只能是https请求
+  },
   secret: 'green travel frontstage',
   resave: false,
   saveUninitialized: true,
   store: new redisStore({ client }),
 }));
-
-/* favicon */
-app.use(favicon(path.join(__dirname, './public/favicon.ico')));
-
-/* static */
-app.use('/static/', express.static(path.join(__dirname, './public/static')));
 
 app.use('/upload', (req, res) => {
   axios.get(`http://localhost:3000/upload${req.url}`, {
@@ -40,15 +45,9 @@ app.use('/upload', (req, res) => {
       res.send(result.data);
     });
 });
-app.use('/api/user', (req, res) => {
-  const { user } = req.session;
-  if (user) return res.json({ user });
-  axios.get('http://localhost:3000/api/user')
-    .then((result) => {
-      req.session.user = result.data;
-      return res.json({ user: result.data });
-    });
-});
+
+app.use('/api', authRouter);
+app.use('/api', userRouter);
 app.use('/api/merchandise', merchandiseRouter);
 app.use('/api/advertisement', advertisementRouter);
 

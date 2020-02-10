@@ -46,8 +46,21 @@ function find(req, res) {
     });
 }
 
+function conversion(req, res) {
+  const { id } = req.body;
+  const user = req.session.user;
+  merchandiseService
+    .conversion(id, user)
+    .then(() => res.json({ code: 0 }))
+    .catch((e) => {
+      console.log(e);
+      res.json({ code: 1 });
+    });
+}
+
 module.exports = {
   list,
   total,
   find,
+  conversion,
 };

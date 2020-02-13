@@ -6,6 +6,8 @@ class Merchandise {
     path,
     description,
     create_time,
+    status,
+    stock,
     exist = 0,
   }) {
     this.id = id;
@@ -14,6 +16,8 @@ class Merchandise {
     this.path = path;
     this.description = description;
     this.create_time = create_time;
+    this.status = status;
+    this.stock = stock;
     this.exist = exist;
   }
 }

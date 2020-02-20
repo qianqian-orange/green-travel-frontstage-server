@@ -10,6 +10,7 @@ require('./init/mysql');
 const merchandiseRouter = require('./routes/merchandise');
 const advertisementRouter = require('./routes/advertisement');
 const signInRouter = require('./routes/signIn');
+const levelRouter = require('./routes/level');
 const authRouter = require('./routes/auth');
 const userRouter = require('./routes/user');
 
@@ -39,8 +40,8 @@ app.use(session({
 
 app.use('/upload', (req, res) => {
   axios.get(`http://localhost:3000/upload${req.url}`, {
-      responseType: 'arraybuffer',
-    })
+    responseType: 'arraybuffer',
+  })
     .then((result) => {
       res.setHeader('Content-Type', `image/${req.url.split('.')[1]}`);
       res.send(result.data);
@@ -57,6 +58,7 @@ app.use('/api', (req, res, next) => {
 app.use('/api/merchandise', merchandiseRouter);
 app.use('/api/advertisement', advertisementRouter);
 app.use('/api/signIn', signInRouter);
+app.use('/api/level', levelRouter);
 
 app.use((req, res) => {
   fs.readFile(path.join(__dirname, './public/index.html'), 'utf-8', (err, data) => {

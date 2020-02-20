@@ -7,18 +7,31 @@ const router = express.Router();
 async function save(req, res, user) {
   try {
     let result = await query('select * from user where id = ? limit 1', [user.id]);
-    let target = result[0];
-    if (!target) {
+    let target;
+    if (result.length === 0) {
       target = {
         id: user.id,
         name: user.name,
-        integral: 100,
+        integral: 0,
+        level: 1,
+        growth: 0,
       };
       await query('insert into user(id, name, integral) values(?, ?, ?)', [
         target.id,
         target.name,
         target.integral,
       ]);
+      await query('insert into level(user_id, lv, growth) values(?, ?, ?)', [
+        target.id,
+        target.level,
+        target.growth,
+      ]);
+    } else {
+      target = result[0];
+      result = await query('select lv, growth from level where user_id = ? limit 1', [user.id]);
+      if (result.length === 0) return res.json({ code: 1 });
+      target.level = result[0].lv;
+      target.growth = result[0].growth;
     }
     req.session.user = target;
     const url = process.env.NODE_ENV === 'development' ? 'http://localhost:8001' : '/';

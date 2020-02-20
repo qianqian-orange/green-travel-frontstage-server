@@ -1,5 +1,6 @@
 const SignIn = require('../model/SignIn');
 const { query, transaction } = require('../init/mysql');
+const { integrals } = require('../config/conversion');
 
 async function data({ year, month, user_id }) {
   try {
@@ -11,7 +12,11 @@ async function data({ year, month, user_id }) {
       });
     }
     await query('insert into signIn(year, month, days, user_id) values(?, ?, ?, ?)', [year, month, '', user_id ]);
-    result = await query('select last_insert_id() as id');
+    result = await query('select id from signIn where year = ? and month = ? and user_id = ?', [
+      year,
+      month,
+      user_id,
+    ]);
     return new SignIn({
       id: result[0].id,
       days: [],
@@ -20,14 +25,6 @@ async function data({ year, month, user_id }) {
     Promise.reject(e);
   }
 }
-
-const integrals = [
-  0.5, 0.3, 1.0, 0.5, 0.6, 1.0, 2.5,
-  1.5, 1.3, 2.0, 1.5, 1.6, 2.0, 3.5,
-  2.5, 2.3, 3.0, 2.5, 3.6, 3.0, 4.5,
-  3.5, 3.3, 4.0, 3.5, 4.6, 4.0, 5.5,
-  4.5, 4.3, 5.0,
-];
 
 async function update({ id, user_id }) {
   try {

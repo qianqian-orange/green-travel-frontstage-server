@@ -9,13 +9,7 @@ function list({ pagination, condition }) {
     (currentPage - 1) * pageSize,
     pageSize,
   ])
-    .then((result) => {
-      const merchandiseList = [];
-      result.forEach((element) => {
-        merchandiseList.push(new Merchandise(element));
-      });
-      return merchandiseList;
-    })
+    .then(result => result.map(item => new Merchandise(item)))
     .catch(e => Promise.reject(e));
 }
 
@@ -30,7 +24,7 @@ function find(id) {
   return query('select * from merchandise where exist = 0 and status = 1 and id = ? limit 1', [id])
     .then((result) => {
       if (result[0]) return new Merchandise(result[0]);
-      return Promise.reject('商品已过期！');
+      return Promise.reject('商品已下架！');
     })
     .catch(e => Promise.reject(e));
 }

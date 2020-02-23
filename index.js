@@ -11,6 +11,7 @@ const merchandiseRouter = require('./routes/merchandise');
 const advertisementRouter = require('./routes/advertisement');
 const signInRouter = require('./routes/signIn');
 const levelRouter = require('./routes/level');
+const publicWelfareRouter = require('./routes/publicWelfare');
 const authRouter = require('./routes/auth');
 const userRouter = require('./routes/user');
 
@@ -59,6 +60,7 @@ app.use('/api/merchandise', merchandiseRouter);
 app.use('/api/advertisement', advertisementRouter);
 app.use('/api/signIn', signInRouter);
 app.use('/api/level', levelRouter);
+app.use('/api/publicWelfare', publicWelfareRouter);
 
 app.use((req, res) => {
   fs.readFile(path.join(__dirname, './public/index.html'), 'utf-8', (err, data) => {

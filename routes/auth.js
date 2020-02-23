@@ -42,8 +42,40 @@ async function save(req, res, user) {
   };
 }
 
-router.get('/login', (req, res) => {
-  return res.redirect(GITHUB_OAUTH_URL);
+// router.get('/login', (req, res) => {
+//   return res.redirect(GITHUB_OAUTH_URL);
+// });
+
+router.get('/login', async (req, res) => {
+  let target = {
+    id: 47880265,
+    name: 'wujunjia',
+    integral: 0,
+    lv: 1,
+    growth: 0,
+  };
+  let result = await query('select * from user where id = ?', [target.id]);
+  if (result.length === 0) {
+    await query('insert into user(id, name, integral) values(?, ?, ?)', [
+      target.id,
+      target.name,
+      target.integral,
+    ]);
+    await query('insert into level(user_id, lv, growth) values(?, ?, ?)', [
+      target.id,
+      target.level,
+      target.growth,
+    ]);
+  } else {
+    target = result[0];
+    result = await query('select lv, growth from level where user_id = ? limit 1', [target.id]);
+    if (result.length === 0) return res.json({ code: 1 });
+    target.level = result[0].lv;
+    target.growth = result[0].growth;
+  }
+  req.session.user = target;
+  const url = process.env.NODE_ENV === 'development' ? 'http://localhost:8001' : '/';
+  res.redirect(url);
 });
 
 router.get('/logout', (req, res) => {
@@ -68,12 +100,21 @@ router.get('/auth', async (req, res) => {
   if (result.status !== 200) return res.send('github auth fail!');
   if (result.data.error) return res.send('the code is expired!');
   const { token_type, access_token } = result.data;
-  result = await axios.get('https://api.github.com/user', {
-    headers: {
-      Authorization: `${token_type} ${access_token}`,
-    },
-  });
-  if (result.status !== 200) return res.send('get user information fail!');
+  let user;
+  try {
+    result = await axios.get('https://api.github.com/user', {
+      headers: {
+        Authorization: `${token_type} ${access_token}`,
+      },
+    });
+    if (result.status !== 200) return res.send('get user information fail!');
+    user = result.data;
+  } catch(e) {
+    user = {
+      id: 47880265,
+      name: 'wujunjia',
+    };
+  }
   save(req, res, result.data);
 });
 

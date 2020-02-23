@@ -1,6 +1,7 @@
 const SignIn = require('../model/SignIn');
 const { query, transaction } = require('../init/mysql');
 const { integrals } = require('../config/conversion');
+const UserService = require('./UserService');
 
 async function data({ year, month, user_id }) {
   try {
@@ -29,7 +30,7 @@ async function data({ year, month, user_id }) {
 async function update({ id, user_id }) {
   try {
     const date = new Date();
-    let result = await query('select * from signIn where id = ? limit 1', [id]);
+    const result = await query('select * from signIn where id = ? limit 1', [id]);
     if (result.length === 0) return Promise.reject('签到记录不存在！');
     if (result[0].year !== date.getFullYear() || result[0].month !== date.getMonth() + 1 || result[0].user_id !== user_id) return Promise.reject('签到记录不匹配！');
     const day = date.getDate();
@@ -42,9 +43,7 @@ async function update({ id, user_id }) {
     }
     const integral = integrals[length];
     days.push(day);
-    result = await query('select integral from user where id = ?', [user_id]);
-    if (result.length === 0) return Promise.reject('用户不存在！');
-    const user = result[0];
+    const user = await UserService.find(user_id);
     const value = (parseInt(user.integral * 100, 10) + parseInt(integral * 100, 10)) / 100;
     const execute = [
       ['update signIn set days = ? where id = ?', [days.join(','), id]],

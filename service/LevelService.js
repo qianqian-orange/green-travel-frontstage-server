@@ -11,7 +11,7 @@ function percents() {
         percents.push(0);
       }
       return result.reduce((pre, cur) => {
-        pre[cur.lv - 1] = parseFloat((cur.total / sum).toFixed(5));
+        pre[cur.lv - 1] = parseFloat((cur.total / sum * 100).toFixed(5));
         return pre;
       }, percents);
     })

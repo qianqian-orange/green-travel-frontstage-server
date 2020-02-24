@@ -13,6 +13,7 @@ const router = express.Router();
 
 router.get('/data', (req, res) => {
   const user = req.session.user;
+  console.log(user.id);
   axios.get('http://localhost:8080/green_travel/api/defaultSignin.action', {
     params: {
       user_id: user.id,

@@ -84,7 +84,7 @@ router.get('/find', (req, res) => {
 
 router.post('/conversion', (req, res) => {
   const user = req.session.user;
-  const id = req.body;
+  const { id } = req.body;
   axios.post('http://localhost:8080/green_travel/api/conversion_order.action', {
     user_id: user.id,
     com_id: id,

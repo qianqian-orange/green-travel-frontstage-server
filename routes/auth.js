@@ -48,8 +48,8 @@ async function save(req, res, user) {
 
 router.get('/login', async (req, res) => {
   let target = {
-    id: 47880265,
-    name: 'wujunjia',
+    id: 123456,
+    name: 'xiaoming',
     integral: 0,
     lv: 1,
     growth: 0,

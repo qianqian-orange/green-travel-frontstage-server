@@ -29,7 +29,11 @@ const router = express.Router();
 // });
 
 router.post('/save', (req, res) => {
-  axios.post('http://localhost:8080/green_travel/api/insertPublicWelfare.action', req.body)
+  const user = req.session.user;
+  axios.post('http://localhost:8080/green_travel/api/insertPublicWelfare.action', {
+    user_id: user.id,
+    ...req.body,
+  })
     .then((result) => {
       const { code } = result.data;
       console.log('publicWelfare save result: ', code);

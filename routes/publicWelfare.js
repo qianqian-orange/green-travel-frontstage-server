@@ -109,9 +109,15 @@ router.get('/find', (req, res) => {
 });
 
 router.post('/donate', (req, res) => {
-  axios.post('http://localhost:8080/green_travel/api/userDonate.action', req.body)
+  const user = req.session.user;
+  axios.post('http://localhost:8080/green_travel/api/userDonate.action', {
+    user_id: user.id,
+    ...req.body,
+  })
     .then((result) => {
-      const { code } = result.data;
+      const { code, data } = result.data;
+      // const user = req.session.user;
+      // user.integral = data;
       console.log('publicWelfare donate result: ', code);
       res.json({ code });
     })

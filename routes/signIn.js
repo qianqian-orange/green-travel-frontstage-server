@@ -36,8 +36,9 @@ router.post('/update', (req, res) => {
     user_id: user.id,
     id,
   }).then((result) => {
-    const { code } = result.data;
-    console.log('signIn update result: ', code);
+    const { code, data } = result.data;
+    console.log('signIn update result: ', code, data);
+    user.integral = data;
     res.json({ code }); 
   }).catch((e) => {
     console.log(e);

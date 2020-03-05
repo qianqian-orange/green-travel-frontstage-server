@@ -23,8 +23,8 @@ function update(req, res) {
   const { id } = req.body;
   signInService
     .update({ id, user_id: user.id })
-    .then((value) => {
-      user.integral = value;
+    .then((integral) => {
+      user.integral = integral;
       res.json({ code: 0 })
     })
     .catch((e) => {

@@ -26,10 +26,10 @@ function save(publicWelfare) {
 function list({ pagination }) {
   const { currentPage, pageSize } = pagination;
   return query(`select t.*, d.donate from 
-    (select p.*, u.name from public_welfare p inner join user u on p.user_id = u.id where p.exist = 0 and p.status = 1 limit ? , ?) t
+    (select p.*, u.name from public_welfare p inner join user u on p.user_id = u.id where p.exist = 0 and p.status = 1 limit ?,?) t
     left join
     (select sum(integral) as donate, public_welfare_id from donate group by public_welfare_id) d
-    on t.id = d.public_welfare_id`, [
+    on t.id = d.public_welfare_id order by t.create_time desc`, [
     (currentPage - 1) * pageSize,
     pageSize,
   ]).then(result => result.map(item => ({ ...new PublicWelfare(item), name: item.name, donate: item.donate ? item.donate : 0 })))

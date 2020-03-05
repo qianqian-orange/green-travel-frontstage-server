@@ -10,7 +10,6 @@ class PublicWelfare {
     end_time,
     path,
     destory = 0,
-    exist = 0,
     status = 0,
   }) {
     this.id = id;
@@ -23,7 +22,6 @@ class PublicWelfare {
     this.end_time = end_time;
     this.path = path;
     this.destory = destory;
-    this.exist = exist;
     this.status = status;
   }
 }

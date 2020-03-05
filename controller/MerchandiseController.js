@@ -2,12 +2,7 @@ const Pagination = require('../model/Pagination');
 const Conversion = require('../model/Conversion');
 const merchandiseService = require('../service/MerchandiseService');
 const lock = require('../lock');
-const {
-  MERCHANDISE_CONVERSION,
-  MERCHANDISE_LIST,
-  MERCHANDISE_TOTAL,
-  MERCHANDISE_FIND,
-} = require('../config/lock');
+const { MERCHANDISE_CONVERSION } = require('../config/lock');
 
 class Condition {
   constructor({
@@ -18,9 +13,6 @@ class Condition {
 }
 
 function list(req, res) {
-  const user = req.session.user;
-  if (lock[`${MERCHANDISE_LIST}-${user.id}`]) return res.json({ code: 1 });
-  lock[`${MERCHANDISE_LIST}-${user.id}`] = true;
   const pagination = new Pagination(req.query);
   const condition = new Condition(req.query);
   merchandiseService
@@ -32,16 +24,10 @@ function list(req, res) {
     .catch((e) => {
       console.log(e);
       res.json({ code: 1 });
-    })
-    .finally(() => {
-      delete lock[`${MERCHANDISE_LIST}-${user.id}`];
     });
 }
 
 function total(req, res) {
-  const user = req.session.user;
-  if (lock[`${MERCHANDISE_TOTAL}-${user.id}`]) return res.json({ code: 1 });
-  lock[`${MERCHANDISE_TOTAL}-${user.id}`] = true;
   const condition = new Condition(req.query);
   merchandiseService
     .total(condition)
@@ -49,16 +35,10 @@ function total(req, res) {
     .catch((e) => {
       console.log(e);
       res.json({ code: 1 });
-    })
-    .finally(() => {
-      delete lock[`${MERCHANDISE_TOTAL}-${user.id}`];
     });
 }
 
 function find(req, res) {
-  const user = req.session.user;
-  if (lock[`${MERCHANDISE_FIND}-${user.id}`]) return res.json({ code: 1 });
-  lock[`${MERCHANDISE_FIND}-${user.id}`] = true;
   const { id } = req.query;
   merchandiseService
     .find(id)
@@ -66,9 +46,6 @@ function find(req, res) {
     .catch((e) => {
       console.log(e);
       res.json({ code: 1 });
-    })
-    .finally(() => {
-      delete lock[`${MERCHANDISE_FIND}-${user.id}`];
     });
 }
 
@@ -77,14 +54,14 @@ function conversion(req, res) {
   const user = req.session.user;
   if (lock[`${MERCHANDISE_CONVERSION}-${user.id}`]) return res.json({ code: 1 });
   lock[`${MERCHANDISE_CONVERSION}-${user.id}`] = true;
-  const c = new Conversion({
+  const target = new Conversion({
     quantity: 1,
     merchandise_id: id,
     user_id: user.id,
     create_time: new Date(),
   });
   merchandiseService
-    .conversion(c)
+    .conversion(target)
     .then((integral) => {
       user.integral = integral;
       res.json({ code: 0 });

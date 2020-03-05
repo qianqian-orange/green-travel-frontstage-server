@@ -1,6 +1,7 @@
 const mysql = require('mysql');
 const { query, transaction } = require('../init/mysql');
 const Merchandise = require('../model/Merchaindise');
+const userService = require('./UserService');
 
 function list({ pagination, condition }) {
   const { currentPage, pageSize } = pagination;
@@ -39,18 +40,16 @@ async function conversion({
   try {
     const merchandise = await find(merchandise_id);
     if (merchandise.stock === 0) return Promise.reject('商品库存为0！');
-    const result = await query('select integral from user where id = ? limit 1', [user_id]);
-    if (result.length === 0) return Promise.reject('没有该用户！');
-    const integral = result[0].integral;
-    const value = (parseInt(integral * 100, 10) - parseInt(merchandise.integral * 100, 10)) / 100;
-    if (value < 0) return Promise.reject('用户积分不足！');
+    const user = await userService.find(user_id);
+    const integral = (parseInt(user.integral * 100, 10) - parseInt(merchandise.integral * 100, 10)) / 100;
+    if (integral < 0) return Promise.reject('用户积分不足！');
     const execute = [
       ['update merchandise set stock = ? where id = ?', [merchandise.stock - 1, merchandise.id]],
-      ['update user set integral = ? where id = ?', [value, user_id]],
+      ['update user set integral = ? where id = ?', [integral, user_id]],
       ['insert into conversion(serial_number, user_id, merchandise_id, quantity, create_time) values(?, ?, ?, ?, ?)', [serial_number, user_id, merchandise_id, quantity, create_time]],
     ];
     await transaction(execute);
-    return value;
+    return integral;
   } catch(e) {
     return Promise.reject(e);
   }

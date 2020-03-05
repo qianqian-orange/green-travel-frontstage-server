@@ -8,7 +8,6 @@ class Merchandise {
     create_time,
     status,
     stock,
-    exist = 0,
   }) {
     this.id = id;
     this.name = name;
@@ -18,7 +17,6 @@ class Merchandise {
     this.create_time = create_time;
     this.status = status;
     this.stock = stock;
-    this.exist = exist;
   }
 }
 

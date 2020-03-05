@@ -1,27 +1,26 @@
 const SignIn = require('../model/SignIn');
 const { query, transaction } = require('../init/mysql');
-const { integrals } = require('../config/conversion');
+const { integrals } = require('../config/signIn');
 const UserService = require('./UserService');
 
 async function data({ year, month, user_id }) {
   try {
+    let target = {};
     let result = await query('select * from signIn where year = ? and month = ? and user_id = ? limit 1', [year, month, user_id]);
-    if (result.length > 0) {
-      return new SignIn({
+    if (result.length === 0) {
+      await query('insert into signIn(year, month, days, user_id) values(?, ?, ?, ?)', [year, month, '', user_id]);
+      result = await query('select id from signIn where year = ? and month = ? and user_id = ?', [year, month, user_id]);
+      target = {
+        id: result[0].id,
+        days: [],
+      };
+    } else {
+      target = {
         id: result[0].id,
         days: result[0].days ? result[0].days.split(',').map(item => parseInt(item, 10)).sort((a, b) => a - b) : [],
-      });
+      };
     }
-    await query('insert into signIn(year, month, days, user_id) values(?, ?, ?, ?)', [year, month, '', user_id ]);
-    result = await query('select id from signIn where year = ? and month = ? and user_id = ?', [
-      year,
-      month,
-      user_id,
-    ]);
-    return new SignIn({
-      id: result[0].id,
-      days: [],
-    });
+    return target;
   } catch(e) {
     Promise.reject(e);
   }
@@ -41,16 +40,15 @@ async function update({ id, user_id }) {
       if (days[j] !== day - i - 1) break;
       length += 1;
     }
-    const integral = integrals[length];
     days.push(day);
     const user = await UserService.find(user_id);
-    const value = (parseInt(user.integral * 100, 10) + parseInt(integral * 100, 10)) / 100;
+    const integral = (parseInt(user.integral * 100, 10) + parseInt(integrals[length] * 100, 10)) / 100;
     const execute = [
       ['update signIn set days = ? where id = ?', [days.join(','), id]],
-      ['update user set integral = ? where id = ?', [value, user_id]],
+      ['update user set integral = ? where id = ?', [integral, user_id]],
     ];
     await transaction(execute);
-    return value;
+    return integral;
   } catch(e) {
     return Promise.reject(e);
   }

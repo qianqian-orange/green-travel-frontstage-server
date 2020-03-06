@@ -43,14 +43,27 @@ async function publicWelfareDetail({ id, user_id }) {
   }
 }
 
+function coupon({ user_id, uc_id }) {
+  return query('select uc.create_time, c.* from coupon c inner join user_coupon uc where uc.user_id = ? and uc.id = ? and uc.coupon_id = c.id limit 1', [user_id, uc_id])
+    .then((result) => {
+      if (result.length === 0) return Promise.reject('没有此优惠卷！');
+      return {
+        create_time: result[0].create_time,
+        ...new Coupon(result[0]),
+      };
+    })
+    .catch(e => Promise.reject(e));
+}
+
 function couponList({ user_id, pagination }) {
   const { pageSize, currentPage } = pagination;
-  return query('select uc.id, uc.create_time, c.day, c.description, c.integral from user_coupon uc, user u, coupon c where uc.user_id = u.id and uc.coupon_id = c.id and uc.user_id = ? and c.exist = 0 limit ?, ?', [
+  return query('select uc.id uc_id, uc.create_time, c.* from user_coupon uc, user u, coupon c where uc.user_id = u.id and uc.coupon_id = c.id and uc.user_id = ? and uc.status = 0  limit ?, ?', [
     user_id,
     (currentPage - 1) * pageSize,
     pageSize,
   ])
     .then(result => result.map(item => ({
+      uc_id: item.uc_id,
       create_time: moment(item.create_time).format('YYYY-MM-DD'),
       ...new Coupon(item),
     })))
@@ -58,7 +71,7 @@ function couponList({ user_id, pagination }) {
 }
 
 function taskList(user_id) {
-  return query('select ut.status, ut.acquire, t.* from task t, user u, user_task ut where t.id = ut.task_id and u.id = ut.user_id and u.id = ? and t.exist = 0', [user_id])
+  return query('select ut.status, ut.acquire, t.* from task t, user u, user_task ut where t.id = ut.task_id and u.id = ut.user_id and u.id = ?', [user_id])
     .then(result => result.map(item => ({
       status: item.status,
       acquire: item.acquire,
@@ -126,4 +139,5 @@ module.exports = {
   taskCheck,
   taskAcquire,
   couponList,
+  coupon,
 };

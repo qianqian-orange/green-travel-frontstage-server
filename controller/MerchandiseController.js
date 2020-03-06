@@ -50,7 +50,7 @@ function find(req, res) {
 }
 
 function conversion(req, res) {
-  const { id } = req.body;
+  const { id, uc_id } = req.body;
   const user = req.session.user;
   if (lock[`${MERCHANDISE_CONVERSION}-${user.id}`]) return res.json({ code: 1 });
   lock[`${MERCHANDISE_CONVERSION}-${user.id}`] = true;
@@ -61,7 +61,10 @@ function conversion(req, res) {
     create_time: new Date(),
   });
   merchandiseService
-    .conversion(target)
+    .conversion({
+      ...target,
+      uc_id,
+    })
     .then((integral) => {
       user.integral = integral;
       res.json({ code: 0 });

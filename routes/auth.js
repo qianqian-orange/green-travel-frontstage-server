@@ -19,13 +19,11 @@ const router = express.Router();
 router.get('/login', async (req, res) => {
   try {
     const result = await axios.post('http://localhost:8080/green_travel/api/Authentication.action', {
-      params: {
-        id: 123456,
-        name: 'xiaoming',
-      },
+      id: 123456,
+      name: 'xiaoming'
     });
     const { code } = result.data;
-  if (code !== 0) res.send(result.data);
+    if (code !== 0) res.send(result.data);
   } catch (e) {
     res.json({ code: 1 });
   }

@@ -11,7 +11,7 @@ router.get('/login', async (req, res) => {
   const tasks = await userService.taskList(user.id);
   user.tasks = tasks;
   req.session.user = user;
-  const url = process.env.NODE_ENV === 'development' ? 'http://localhost:8001' : '/';
+  const url = process.env.NODE_ENV === 'development' ? 'http://localhost:8001/user' : '/user';
   res.redirect(url);
 });
 

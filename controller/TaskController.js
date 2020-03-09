@@ -16,12 +16,7 @@ function find(req, res) {
   const { id } = req.query;
   taskService
     .find(id)
-    .then((data) => {
-      const user = req.session.user;
-      const task = user.tasks.find(item => item.id === +id);
-      if (task) task.coupons = data.coupons;
-      res.json({ code: 0, data });
-    })
+    .then((data) => res.json({ code: 0, data }))
     .catch((e) => {
       console.log(e);
       res.json({ code: 1 });

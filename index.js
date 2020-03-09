@@ -41,6 +41,11 @@ app.use(session({
   store: new redisStore({ client }),
 }));
 
+app.use((req, res, next) => {
+  console.log('test');
+  next();
+});
+
 app.use('/upload', (req, res) => {
   axios.get(`http://localhost:3000/upload${req.url}`, {
     responseType: 'arraybuffer',

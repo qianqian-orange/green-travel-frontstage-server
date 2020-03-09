@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "dev": "cross-env NODE_ENV=development node index.js",
-    "start": "cross-env NODE_ENV=production pm2 start index.js -n green-travel-frontstage"
+    "pro": "cross-env NODE_ENV=production node index.js",
+    "start": "cross-env NODE_ENV=production node index.js"
   },
   "keywords": [],
   "author": "",

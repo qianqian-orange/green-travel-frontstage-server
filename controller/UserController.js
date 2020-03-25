@@ -86,6 +86,40 @@ function taskAcquire(req, res) {
     });
 }
 
+function conversionList(req, res) {
+  const user = req.session.user;
+  const pagination = new Pagination(req.query);
+  userService
+    .conversionList({ user_id: user.id, pagination })
+      .then(data => res.json({ code: 0, data }))
+      .catch((e) => {
+        console.log(e);
+        res.json({ code: 1 });
+      });
+}
+
+function conversionRemove(req, res) {
+  const { id } = req.body;
+  userService
+    .conversionRemove(id)
+    .then(() => res.json({ code: 0 }))
+    .catch((e) => {
+      console.log(e);
+      res.json({ code: 1 });
+    });
+}
+
+function conversionDetail(req, res) {
+  const { id } = req.query;
+  userService
+    .conversionDetail(id)
+    .then((data) => res.json({ code: 0, data }))
+    .catch((e) => {
+      console.log(e);
+      res.json({ code: 1 });
+    });
+}
+
 module.exports = {
   publicWelfareList,
   publicWelfareDetail,
@@ -93,4 +127,7 @@ module.exports = {
   taskCheck,
   taskAcquire,
   couponList,
+  conversionList,
+  conversionRemove,
+  conversionDetail,
 };

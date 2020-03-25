@@ -131,6 +131,28 @@ async function taskAcquire({ task_id, user: { tasks, id } }) {
   }
 }
 
+function conversionList({ user_id, pagination }) {
+  const { currentPage, pageSize } = pagination;
+  return query('select c.id, c.serial_number, c.create_time, m.name, m.integral, m.description, m.path from conversion c, merchandise m where c.user_id = ? and c.destory = 0 and c.merchandise_id = m.id limit ?, ?', [
+    user_id,
+    (currentPage - 1) * pageSize,
+    pageSize,
+  ]);
+}
+
+function conversionRemove(id) {
+  return query('update conversion set destory = 1 where id = ?', [id]);
+}
+
+function conversionDetail(id) {
+  return query('select c.id, c.serial_number, c.create_time, m.name, m.integral, m.description, m.path from conversion c, merchandise m where c.id = ? and c.destory = 0 and c.merchandise_id = m.id limit 1', [id])
+    .then((result) => {
+      if (result.length === 0) return Promise.reject('兑换记录不存在!');
+      return result[0];
+    })
+    .catch(e => Promise.reject(e));
+}
+
 module.exports = {
   find,
   publicWelfareList,
@@ -140,4 +162,7 @@ module.exports = {
   taskAcquire,
   couponList,
   coupon,
+  conversionList,
+  conversionRemove,
+  conversionDetail,
 };

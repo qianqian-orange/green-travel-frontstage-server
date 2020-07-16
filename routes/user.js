@@ -32,6 +32,7 @@ router.post('/taskAcquire', (req, res) => {
 });
 
 router.get('/conversionList', (req, res) => {
+  console.log(1)
   userController.conversionList(req, res);
 });
 
